@@ -4,15 +4,15 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 
-export default function Home() {
+export default function useAuthGuard() {
   const router = useRouter();
   const { token, hasHydrated } = useAuthStore();
 
   useEffect(() => {
     if (!hasHydrated) return;
 
-    router.replace(token ? "/dashboard" : "/login");
+    if (!token) {
+      router.replace("/login");
+    }
   }, [token, hasHydrated]);
-
-  return null;
 }
