@@ -6,7 +6,7 @@ A modern full-stack web application to calculate meal calories, track nutrition,
 
 ## 🚀 Live Demo
 
-👉 **Deployed App:** https://your-deployment-link.com
+👉 **Deployed App:** https://meal-calorie-frontend-arya-rajput-dev.vercel.app
 
 ---
 
