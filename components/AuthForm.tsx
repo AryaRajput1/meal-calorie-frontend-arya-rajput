@@ -9,10 +9,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { firstCapitalize } from "@/lib/firstCapitalize";
 import { z } from "zod";
+import { useState } from "react";
+import { useRateLimit } from "@/hooks/useRateLimit";
 
 export default function AuthForm({ mode }: { mode: "login" | "register" }) {
   const isLoginMode = mode === "login";
   const schema = isLoginMode ? loginSchema : registerSchema;
+
   type FormData = z.infer<typeof loginSchema | typeof registerSchema>;
 
   const {
@@ -26,7 +29,13 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
   const setAuth = useAuthStore((s) => s.setAuth);
   const router = useRouter();
 
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  const { retryAfter, rateLimitMessage, handleRateLimitError } = useRateLimit();
+
   const onSubmit = async (data: any) => {
+    setApiError(null);
+
     try {
       const res = isLoginMode
         ? await loginUser(data)
@@ -35,7 +44,9 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
       setAuth(res);
       router.push("/dashboard");
     } catch (e: any) {
-      alert(e.message);
+      if (!handleRateLimitError(e)) {
+        setApiError(e.message || "Something went wrong");
+      }
     }
   };
 
@@ -57,11 +68,11 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
               <input
                 placeholder="First Name"
                 {...register("first_name")}
-                className="w-full border p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-black outline-none"
               />
-              {(errors as { first_name?: { message?: string } }).first_name && (
+              {(errors as any).first_name && (
                 <p className="text-red-500 text-xs mt-1">
-                  {(errors as { first_name?: { message?: string } }).first_name!.message as string}
+                  {(errors as any).first_name.message}
                 </p>
               )}
             </div>
@@ -70,14 +81,11 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
               <input
                 placeholder="Last Name"
                 {...register("last_name")}
-                className="w-full border p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-black outline-none"
               />
-              {(errors as { last_name?: { message?: string } }).last_name && (
+              {(errors as any).last_name && (
                 <p className="text-red-500 text-xs mt-1">
-                  {
-                    (errors as { last_name?: { message?: string } }).last_name!
-                      .message as string
-                  }
+                  {(errors as any).last_name.message}
                 </p>
               )}
             </div>
@@ -89,7 +97,7 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
           <input
             placeholder="Email"
             {...register("email")}
-            className="w-full border p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+            className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-black outline-none"
           />
           {errors.email && (
             <p className="text-red-500 text-xs mt-1">
@@ -104,7 +112,7 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
             type="password"
             placeholder="Password"
             {...register("password")}
-            className="w-full border p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+            className="w-full border p-2 rounded-lg focus:ring-2 focus:ring-black outline-none"
           />
           {errors.password && (
             <p className="text-red-500 text-xs mt-1">
@@ -113,23 +121,37 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
           )}
         </div>
 
+        {/* Global Error */}
+        {(apiError || rateLimitMessage) && (
+          <div className="bg-red-100 text-red-700 text-sm p-3 rounded-lg">
+            {rateLimitMessage || apiError}
+            {retryAfter !== null && (
+              <div className="mt-1 font-medium">Retry in {retryAfter}s</div>
+            )}
+          </div>
+        )}
+
         {/* Button */}
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || retryAfter !== null}
           className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition disabled:opacity-50"
         >
-          {isSubmitting ? "Processing..." : firstCapitalize(mode)}
+          {retryAfter !== null
+            ? `Wait ${retryAfter}s`
+            : isSubmitting
+              ? "Processing..."
+              : firstCapitalize(mode)}
         </button>
 
         {/* Footer */}
         <p className="text-center text-sm text-gray-500">
-          {mode === "login" ? "New here?" : "Already have an account?"}{" "}
+          {isLoginMode ? "New here?" : "Already have an account?"}{" "}
           <span className="text-black font-medium cursor-pointer">
-            {mode === "login" ? (
-              <Link href={"/register"}>Register </Link>
+            {isLoginMode ? (
+              <Link href="/register">Register</Link>
             ) : (
-              <Link href={"/login"}>Login </Link>
+              <Link href="/login">Login</Link>
             )}
           </span>
         </p>
