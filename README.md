@@ -10,6 +10,22 @@ A modern full-stack web application to calculate meal calories, track nutrition,
 
 ---
 
+---
+
+## Screenshots
+
+<img src="./screenshots/login.png" width="300" alt="Login">
+
+<img src="./screenshots/register.png" width="300" alt="Register">
+
+<img src="./screenshots/mealForm.png" width="300" alt="Meal Form">
+
+<img src="./screenshots/searched.png" width="300" alt="Searched">
+
+<img src="./screenshots/dashboard.png" width="300" alt="Dashboard">
+
+---
+
 ## ✨ Features
 
 ### 🔐 Authentication

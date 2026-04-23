@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function Navbar() {
   const { user, logout } = useAuthStore();
   return (
-    <nav className="w-full h-16 bg-black text-white flex items-center justify-between px-6">
+    <nav className="w-full h-16 bg-black text-white flex items-center justify-between px-6 sticky top-0 left-0 z-50">
       {/* Title / Logo */}
       <h1 className="text-xl font-bold tracking-wide">Meal Calorie Checker</h1>
 

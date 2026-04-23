@@ -34,7 +34,7 @@ export default function Dashboard() {
         <div className="bg-white rounded-2xl shadow-md p-6">
           <h2 className="text-lg font-semibold mb-4">Recent Meals</h2>
 
-          <MealHistoryTable history={history} />
+          <MealHistoryTable history={history.filter(Boolean)} />
         </div>
       </div>
     </div>

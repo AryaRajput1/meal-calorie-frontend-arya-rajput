@@ -1,9 +1,14 @@
 "use client";
 
 import { useMealStore } from "@/stores/mealStore";
+import { useEffect } from "react";
 
 export default function ResultCard() {
-  const { result, isLoading } = useMealStore((s: any) => s);
+  const { result, isLoading, setResult } = useMealStore((s: any) => s);
+
+  useEffect(() => {
+    setResult(null); // Clear previous result when component mounts
+  }, []);
 
   // Loading State (Skeleton)
   if (isLoading) {
@@ -32,18 +37,13 @@ export default function ResultCard() {
 
   return (
     <div className="bg-white rounded-2xl shadow-md p-6 space-y-4">
-      
       {/* Title */}
-      <h2 className="text-xl font-bold text-center">
-        {result.dish_name}
-      </h2>
+      <h2 className="text-xl font-bold text-center">{result.dish_name}</h2>
 
       {/* Calories */}
       <div className="bg-black text-white text-center py-3 rounded-xl">
         <p className="text-sm opacity-80">Total Calories</p>
-        <p className="text-2xl font-semibold">
-          {result.total_calories}
-        </p>
+        <p className="text-2xl font-semibold">{result.total_calories}</p>
       </div>
 
       {/* Macros */}
