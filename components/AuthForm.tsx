@@ -8,15 +8,18 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { firstCapitalize } from "@/lib/firstCapitalize";
+import { z } from "zod";
 
 export default function AuthForm({ mode }: { mode: "login" | "register" }) {
-  const schema = mode === "login" ? loginSchema : registerSchema;
+  const isLoginMode = mode === "login";
+  const schema = isLoginMode ? loginSchema : registerSchema;
+  type FormData = z.infer<typeof loginSchema | typeof registerSchema>;
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm({
+  } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 
@@ -25,8 +28,9 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
 
   const onSubmit = async (data: any) => {
     try {
-      const res =
-        mode === "login" ? await loginUser(data) : await registerUser(data);
+      const res = isLoginMode
+        ? await loginUser(data)
+        : await registerUser(data);
 
       setAuth(res);
       router.push("/dashboard");
@@ -43,11 +47,11 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
       >
         {/* Title */}
         <h2 className="text-2xl font-bold text-center">
-          {mode === "login" ? "Welcome Back" : "Create Account"}
+          {isLoginMode ? "Welcome Back" : "Create Account"}
         </h2>
 
         {/* Register fields */}
-        {mode === "register" && (
+        {!isLoginMode && (
           <div className="flex gap-2">
             <div className="w-1/2">
               <input
@@ -55,9 +59,9 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
                 {...register("first_name")}
                 className="w-full border p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
               />
-              {errors.first_name && (
+              {(errors as { first_name?: { message?: string } }).first_name && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.first_name.message as string}
+                  {(errors as { first_name?: { message?: string } }).first_name!.message as string}
                 </p>
               )}
             </div>
@@ -68,9 +72,12 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
                 {...register("last_name")}
                 className="w-full border p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
               />
-              {errors.last_name && (
+              {(errors as { last_name?: { message?: string } }).last_name && (
                 <p className="text-red-500 text-xs mt-1">
-                  {errors.last_name.message as string}
+                  {
+                    (errors as { last_name?: { message?: string } }).last_name!
+                      .message as string
+                  }
                 </p>
               )}
             </div>

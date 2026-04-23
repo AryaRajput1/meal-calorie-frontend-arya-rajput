@@ -62,8 +62,8 @@ A modern full-stack web application to calculate meal calories, track nutrition,
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/your-username/calories-app.git
-cd calories-app
+git clone https://github.com/AryaRajput1/meal-calorie-frontend-arya-rajput
+cd meal-calorie-frontend-arya-rajput
 ```
 
 ### 2. Install dependencies
